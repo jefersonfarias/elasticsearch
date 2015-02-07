@@ -1,0 +1,65 @@
+- name: Install OpenJDK
+  apt: pkg="openjdk-7-jre" update_cache=yes
+  tags:
+   - download
+   - java
+
+- name: Fetch Elasticsearch package (.deb)
+  get_url: url={{ elasticsearch_url }}-{{ elasticsearch_version }}.deb dest=/tmp/elasticsearch-{{ elasticsearch_version }}.deb
+  tags:
+   - download
+   - elasticsearch
+
+- name: Install Elasticsearch from package
+  command: dpkg -i --skip-same-version /tmp/elasticsearch-{{ elasticsearch_version }}.deb
+  register: dpkg_result
+  changed_when: "dpkg_result.stdout.startswith('Selecting')" # see http://stackoverflow.com/questions/19127493
+  tags:
+   - download
+   - elasticsearch
+
+- name: Creates elasticsearch data directory
+  file: path={{elasticserch_data_dir}} state=directory owner=root group=root mode=0777
+  tags:
+   - config
+  notify:
+   - restart elasticsearch
+
+- name: Creates elasticsearch log directory
+  file: path={{elasticserch_log_dir}} state=directory owner=root group=root mode=0777
+  tags:
+   - config
+  notify:
+   - restart elasticsearch
+
+# configure elasticsearch
+- name: Create elasticsearch config
+  template: src=elasticsearch.yml.j2 dest="/etc/elasticsearch/elasticsearch.yml" owner=root group=root mode=0644
+  tags:
+   - config
+  notify:
+   - restart elasticsearch
+
+- name: Create elasticsearch log
+  template: src=logging.yml.j2 dest="/etc/elasticsearch/logging.yml" owner=root group=root mode=0644
+  tags:
+   - config
+  notify:
+   - restart elasticsearch
+
+- name: Create JVM config
+  template: src=elasticsearch.in.sh.j2 dest="/usr/share/elasticsearch/bin/elasticsearch.in.sh" owner=root group=root mode=0644
+  tags:
+   - config
+  notify:
+   - restart elasticsearch
+
+- name: Create ElasticSearch data directory
+  file: path={{elasticserch_data_dir}} state=directory owner=elasticsearch group=elasticsearch mode=0775
+  notify:
+   - restart elasticsearch
+   
+- name: Create ElasticSearch log directory
+  file: path={{elasticserch_log_dir}} state=directory owner=elasticsearch group=elasticsearch mode=0775
+  notify:
+   - restart elasticsearch

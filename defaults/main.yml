@@ -1,0 +1,24 @@
+# Url to fetch elasticsearch from
+elasticsearch_url: "https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch"
+
+# Version to install
+elasticsearch_version: "1.4.2"
+
+jvm_config_min_mem: 128M
+jvm_config_max_mem: 256M
+
+elasticserch_data_dir: /var/lib/elasticsearch
+elasticserch_log_dir: /var/log/elasticsearch
+
+rack_id: "elasticserch_rack_id"
+cluster_name: "elasticserch_cluster_name"
+instance_name: "elasticserch_instance_name"
+
+is_master: "true"
+save_data: "true"
+
+number_of_shards: 5
+number_of_replicas: 1
+
+discovery_zen_ping_multicast_enabled: true
+discovery_zen_ping_multicast_hosts: ""
